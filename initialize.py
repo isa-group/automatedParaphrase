@@ -1,5 +1,5 @@
 from google.cloud import storage
-#import main
+import main
 
 # Configuration for the paraphrase generation
 pruning = "On"
@@ -81,5 +81,5 @@ download_training_file()
 sentences = process_training_file()
 save_examples()
 
-#paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
+paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
 save_paraphrases(paraphrases)
