@@ -85,7 +85,7 @@ save_examples()
 paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
 
 paraphrases.pop("metric_score")
-with open("paraphrases.json", "w") as f:
+with open("./paraphrases.json", "w") as f:
     json.dump(paraphrases, f)
 
 save_paraphrases(paraphrases)
