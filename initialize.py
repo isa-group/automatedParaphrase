@@ -73,10 +73,10 @@ def save_examples():
     blob = bucket.blob(file)
     blob.upload_from_filename(file)
 
-def save_paraphrases(paraphrases):
+def save_paraphrases():
     file = "paraphrases.json"
     blob = bucket.blob(file)
-    blob.upload_from_filename(paraphrases)
+    blob.upload_from_filename(file)
 
 download_training_file()
 sentences = process_training_file()
@@ -88,4 +88,4 @@ paraphrases.pop("metric_score")
 with open("./paraphrases.json", "w") as f:
     json.dump(paraphrases, f)
 
-save_paraphrases(paraphrases)
+save_paraphrases()
