@@ -1,5 +1,6 @@
 from google.cloud import storage
 import main
+import json
 
 # Configuration for the paraphrase generation
 pruning = "On"
@@ -72,14 +73,19 @@ def save_examples():
     blob = bucket.blob(file)
     blob.upload_from_filename(file)
 
-def save_paraphrases(sentences):
-    file = "paraphrases.txt"
+def save_paraphrases(paraphrases):
+    file = "paraphrases.json"
     blob = bucket.blob(file)
-    blob.upload_from_string(sentences)
+    blob.upload_from_filename(paraphrases)
 
 download_training_file()
 sentences = process_training_file()
 save_examples()
 
 paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
+
+paraphrases.pop("metric_score")
+with open("paraphrases.json", "w") as f:
+    json.dump(paraphrases, f)
+
 save_paraphrases(paraphrases)
