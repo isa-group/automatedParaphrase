@@ -14,7 +14,7 @@ def index():
         config = data['configuration']#return string
         
         # get user sentence
-        sentence = data['user_utterance']
+        sentences = data['user_utterance'].split('\n')
 
         # get candidate selection(pruning) flag
         if "pruning" in data:
@@ -45,7 +45,7 @@ def index():
         else:
             num_seq = None
         
-        paraphrases = main.generate_from_gui(sentence,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
+        paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
 
         return jsonify(paraphrases)
     return render_template('index.html')

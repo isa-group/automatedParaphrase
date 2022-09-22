@@ -579,7 +579,7 @@ def main():
     t2 = "Overall elapsed time: "+str(datetime.timedelta(0,time.time()-t1))
     pr_green(t2)
 
-def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pre_trained=None,num_seq = None,compute_metrics="Off"):
+def generate_from_gui(sentences,pipeline_config,pruning="Off",pivot_level=None,pre_trained=None,num_seq = None,compute_metrics="Off"):
     """
     Generate parpahrases using Graphical User Interface(GUI) of the pipeline implemented in index.html 
     :param sentence: user sentence to parpahrase obtained from the GUI. Value from templates/index.html <input type="text" name="user_utterance"/>
@@ -606,20 +606,20 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
     
 
     #convert sentence to dictionary
-    sentence = {sentence:[]}
+    sentences = {sentence:[] for sentence in sentences}
     # pipeline configuration
     if pipeline_config == "c1":# Pivot-Translation
         #convert pivot_level to integer
         pivot_level = int(pivot_level)
         #run pivot translation component
-        result = gui_pivot_translation(sentence,pivot_level,flag)
+        result = gui_pivot_translation(sentences,pivot_level,flag)
 
     elif pipeline_config == "c2":# Weak-supervision
         #start the pipeline with Weak-Supervision SBSS component
         # load spaCy USE embedding model
         spacy_nlp = load_library('load_spacy_nlp','en_use_lg')
 
-        result = gui_sbss(sentence,spacy_nlp,flag)
+        result = gui_sbss(sentences,spacy_nlp,flag)
 
         #Run Weak-Supervision SRSS component
         result = gui_srss_weak_supervision_generation(result)
@@ -627,7 +627,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
     elif pipeline_config == "c3":# T5
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
     elif pipeline_config == "c4":# Weak-Supervision => Pivot-Translation
         
@@ -637,7 +637,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         # load spaCy USE embedding model
         spacy_nlp = load_library('load_spacy_nlp','en_use_lg')
 
-        result = gui_sbss(sentence,spacy_nlp,flag)
+        result = gui_sbss(sentences,spacy_nlp,flag)
 
         #Run Weak-Supervision SRSS component
         result = gui_srss_weak_supervision_generation(result)
@@ -658,7 +658,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         # load spaCy USE embedding model
         spacy_nlp = load_library('load_spacy_nlp','en_use_lg')
 
-        result = gui_sbss(sentence,spacy_nlp,flag)
+        result = gui_sbss(sentences,spacy_nlp,flag)
 
         #Run Weak-Supervision SRSS component
         result = gui_srss_weak_supervision_generation(result)
@@ -668,7 +668,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         flag = 1 # set flag to 1
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
     elif pipeline_config == "c6":# Weak-Supervision => Pivot-Translation => T5
         
@@ -678,7 +678,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         # load spaCy USE embedding model
         spacy_nlp = load_library('load_spacy_nlp','en_use_lg')
 
-        result = gui_sbss(sentence,spacy_nlp,flag)
+        result = gui_sbss(sentences,spacy_nlp,flag)
 
         #Run Weak-Supervision SRSS component
         result = gui_srss_weak_supervision_generation(result)
@@ -695,7 +695,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
     elif pipeline_config == "c7":# Weak-Supervision  => T5 => Pivot-Translation
         
@@ -705,7 +705,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         # load spaCy USE embedding model
         spacy_nlp = load_library('load_spacy_nlp','en_use_lg')
 
-        result = gui_sbss(sentence,spacy_nlp,flag)
+        result = gui_sbss(sentences,spacy_nlp,flag)
 
         #Run Weak-Supervision SRSS component
         result = gui_srss_weak_supervision_generation(result)
@@ -715,7 +715,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         flag = 1
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
         
         ### Run Pivot-Translation ###
         
@@ -731,7 +731,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         #convert pivot_level to integer
         pivot_level = int(pivot_level)
         #run pivot translation component
-        result = gui_pivot_translation(sentence,pivot_level,flag)
+        result = gui_pivot_translation(sentences,pivot_level,flag)
         
         ### Run Weak-Supervision ###
         
@@ -751,14 +751,14 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         #convert pivot_level to integer
         pivot_level = int(pivot_level)
         #run pivot translation component
-        result = gui_pivot_translation(sentence,pivot_level,flag)
+        result = gui_pivot_translation(sentences,pivot_level,flag)
         
         ### Run T5 ###
         
         flag = 1
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
     elif pipeline_config == "c10":# Pivot-Translation => Weak-Supervision => T5
         
@@ -767,7 +767,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         #convert pivot_level to integer
         pivot_level = int(pivot_level)
         #run pivot translation component
-        result = gui_pivot_translation(sentence,pivot_level,flag)
+        result = gui_pivot_translation(sentences,pivot_level,flag)
         
         ### Run Weak-Supervision ###
         
@@ -783,7 +783,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
     elif pipeline_config == "c11":# Pivot-Translation => T5 => Weak-Supervision
         
@@ -792,14 +792,14 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         #convert pivot_level to integer
         pivot_level = int(pivot_level)
         #run pivot translation component
-        result = gui_pivot_translation(sentence,pivot_level,flag)
+        result = gui_pivot_translation(sentences,pivot_level,flag)
         
         ### Run T5 ###
         
         flag = 1 # set flag to 1
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
         
         ### Run Weak-Supervision ###
         
@@ -817,7 +817,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
         
         ### Run Weak-Supervision ###
 
@@ -835,7 +835,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         ### Start the pipeline with T5 ###
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
         
         ### Run Pivot-Translation ###
         flag = 1 # set flag to 1
@@ -849,7 +849,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         ### Start the pipeline with T5 ###
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
         
         ### Run Pivot-Translation ###
         flag = 1 # set flag to 1
@@ -871,7 +871,7 @@ def generate_from_gui(sentence,pipeline_config,pruning="Off",pivot_level=None,pr
         ### Start the pipeline with T5 ###
         # load T5 model and tokenizer
         t5_model = load_library('load_t5',model_name,'t5-base')#t5_model[0]=model; t5_model[1]=tokenizer; t5_model[2]=device
-        result = t5.t5_paraphraser(sentence,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
+        result = t5.t5_paraphraser(sentences,t5_model[0],t5_model[1],t5_model[2],flag,num_seq,max_len)
 
         ### Run Weak-Supervision ###
         flag = 1 # set flag to 1
