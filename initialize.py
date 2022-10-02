@@ -1,6 +1,7 @@
 from google.cloud import storage
-import main
+import re
 import json
+import main
 
 # Configuration for the paraphrase generation
 pruning = "On"
@@ -16,48 +17,50 @@ storage_client = storage.Client()
 bucket = storage_client.bucket(bucket_name)
 
 def download_training_file():
-    file = "training.json"
+    file = "training.csv"
     blob = bucket.blob(file)
     blob.download_to_filename(file)
 
 def process_training_file():
-    import json
-    with open("./training.json", "r") as f:
-        data = json.load(f)["measures"]
-
+    with open('training.csv', 'r') as f:
+        data = f.read()
+    data = data.split('</s>')[0:-1]
+    
     tokens = []
     tags = []
 
-    for phrase in data:
+    for i in range(len(data)):
         phrase_tokens = []
         phrase_tags = []
-        for word in phrase:
-            if word["value"] != " ":
-                splits = word["value"].split(" ")
-                splits = [w for w in splits if w != ""]
-                if word["type"] == "Text":
-                    for split in splits:
-                        phrase_tokens.append(split)
-                        phrase_tags.append("O")
+
+        if i == 0:
+            phrase = data[i].split('\n')[1:-1]
+        else:
+            phrase = data[i].split('\n')[2:-1]
+        
+        for j in range(len(phrase)):
+            token, tag = phrase[j].split(';')[0:2]
+            phrase_tokens.append(token)
+            if tag == 'I':
+                if j == 0:
+                    phrase_tags.append('O')
                 else:
-                    tag = word["slot"]
-                    tag = "AggFunction" if tag == "AGRCount" or tag == "AGR" else tag
-                    tag = "CCI" if tag == "CCIData" else tag
-                    tag = "AttributeValue" if tag == "AttributeValueData" else tag
-                    for i in range(len(splits)):
-                        if i == 0:
-                            phrase_tokens.append(splits[i])
-                            phrase_tags.append("B-"+tag)
-                        else:
-                            phrase_tokens.append(splits[i])
-                            phrase_tags.append("I-"+tag)
+                    previous_tag = phrase_tags[-1]
+                    regex =  re.search(r'^[BI]-(.*)',previous_tag)
+                    if (regex):
+                        previous_tag = regex.group(1)
+                    phrase_tags.append('I-' + previous_tag)
+            else:
+                phrase_tags.append('B-' + tag)
+
         tokens.append(phrase_tokens)
         tags.append(phrase_tags)
-
+    
     examples = {
         "tokens": tokens,
         "tags": tags
     }
+
     with open("./examples.json", "w") as f:
         json.dump(examples, f)
 
@@ -68,19 +71,20 @@ def process_training_file():
     
     return sentences
 
-def save_examples():
+def upload_examples():
     file = "examples.json"
     blob = bucket.blob(file)
     blob.upload_from_filename(file)
 
-def save_paraphrases():
+def upload_paraphrases():
     file = "paraphrases.json"
     blob = bucket.blob(file)
     blob.upload_from_filename(file)
 
+
 download_training_file()
 sentences = process_training_file()
-save_examples()
+upload_examples()
 
 paraphrases = main.generate_from_gui(sentences,config,pruning=pruning,pivot_level=pivot_level,pre_trained=pre_trained,num_seq=num_seq,compute_metrics=compute_metrics)
 
@@ -88,4 +92,4 @@ paraphrases.pop("metric_score")
 with open("./paraphrases.json", "w") as f:
     json.dump(paraphrases, f)
 
-save_paraphrases()
+upload_paraphrases() 
